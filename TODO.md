@@ -93,7 +93,6 @@
   - สร้างตาราง `audio_files` พร้อม status enum
   - สร้าง indexes: `projects.user_id`, `audio_files.project_id`
   - เขียน migration script
-  - _Requirements: 27.2, 2, 3_
 
 - [ ] 2.3 Create Transcript และ Translation Tables
 
@@ -201,7 +200,7 @@
   - Redirect ไป dashboard หลัง register สำเร็จ
   - เก็บ token ใน localStorage
   - Comment อธิบายแต่ละส่วน
-  - _Requirements: 1.1, 1.2, 25.5, 25.7_
+
 
 - [ ] 4.3 Create Login Page
 
@@ -214,7 +213,6 @@
   - Redirect ไป dashboard หลัง login สำเร็จ
   - เก็บ token ใน localStorage
   - Comment อธิบายแต่ละส่วน
-  - _Requirements: 1.3, 25.5, 25.7_
 
 - [ ] 4.4 Create Forgot Password Page
 
@@ -222,7 +220,6 @@
   - ใช้ 3D button สำหรับ submit
   - แสดง success message หลังส่ง email
   - Comment อธิบายแต่ละส่วน
-  - _Requirements: 1.4, 25.5_
 
 - [ ] 4.5 Create Reset Password Page
 
@@ -232,7 +229,6 @@
   - ใช้ 3D button สำหรับ submit
   - แสดง success message และ redirect ไป login
   - Comment อธิบายแต่ละส่วน
-  - _Requirements: 1.4, 25.5_
 
 - [ ] 4.6 Implement Auth State Management
 
@@ -243,7 +239,6 @@
   - Persist auth state ใน localStorage
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 4.7 Create Protected Route Component
 
   - สร้าง ProtectedRoute component
@@ -251,7 +246,6 @@
   - Redirect ไป login ถ้ายังไม่ login
   - แสดง loading state ระหว่าง check auth
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 5. Dashboard Layout (Frontend)
 
@@ -268,7 +262,6 @@
   - Implement responsive behavior (collapse sidebar on mobile)
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 5.2 Create Mobile Layout
 
   - สร้าง MobileLayout component
@@ -278,7 +271,6 @@
   - ใช้ large touch-friendly buttons
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 5.3 Create Sidebar Navigation
 
   - สร้าง navigation items: Dashboard, Projects, Settings
@@ -286,7 +278,6 @@
   - ใช้ purple color สำหรับ active state
   - เพิ่ม icons สำหรับแต่ละ item
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 5.4 Create User Menu Component
 
@@ -296,12 +287,10 @@
   - Implement logout function
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 6. Dashboard Page (Frontend)
 
   - สร้างหน้า Dashboard แสดงภาพรวม
   - แสดงสถิติการใช้งาน
-
 
 - [ ] 6.1 Create Dashboard Stats Cards
 
@@ -311,7 +300,6 @@
   - แสดง loading skeleton ระหว่างโหลดข้อมูล
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 6.2 Create Recent Projects List
 
   - แสดงรายการโปรเจกต์ล่าสุด (5 รายการ)
@@ -319,7 +307,6 @@
   - เพิ่ม "View All" button
   - ใช้ 3D card สำหรับแต่ละ project
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 6.3 Integrate Dashboard with Backend API
 
@@ -329,11 +316,9 @@
   - Implement retry logic
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 7. Projects Management (Backend)
 
   - สร้าง API endpoints สำหรับจัดการโปรเจกต์
-
 
 - [ ] 7.1 Implement Create Project API
 
@@ -344,7 +329,6 @@
   - Return created project
   - เขียน integration tests
 
-
 - [ ] 7.2 Implement Get Projects API
 
   - สร้าง GET `/api/v1/projects` endpoint
@@ -354,14 +338,12 @@
   - Return projects พร้อม audio_files_count
   - เขียน integration tests
 
-
 - [ ] 7.3 Implement Get Project Detail API
 
   - สร้าง GET `/api/v1/projects/:projectId` endpoint
   - Return project พร้อม audio files list
   - Check user ownership
   - เขียน integration tests
-
 
 - [ ] 7.4 Implement Update Project API
 
@@ -371,7 +353,6 @@
   - Check user ownership
   - เขียน integration tests
 
-
 - [ ] 7.5 Implement Delete Project API
 
   - สร้าง DELETE `/api/v1/projects/:projectId` endpoint
@@ -380,11 +361,9 @@
   - Check user ownership
   - เขียน integration tests
 
-
 - [ ] 8. Projects Management UI (Frontend)
 
   - สร้างหน้าจัดการโปรเจกต์
-
 
 - [ ] 8.1 Create Projects List Page
 
@@ -396,14 +375,12 @@
   - Implement pagination
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 8.2 Create Project Card Component
 
   - แสดง project name, description, file count, created date
   - เพิ่ม action buttons: View, Edit, Delete (3D buttons)
   - ใช้ purple accent สำหรับ hover state
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 8.3 Create Create/Edit Project Modal
 
@@ -414,14 +391,12 @@
   - แสดง loading state
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 8.4 Implement Delete Project Confirmation
 
   - สร้าง confirmation modal
   - แสดง warning message
   - ใช้ 3D buttons สำหรับ Confirm/Cancel
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 8.5 Integrate Projects Page with Backend
 
@@ -432,11 +407,9 @@
   - แสดง error/success messages
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 9. File Upload System (Backend)
 
   - สร้าง API สำหรับอัปโหลดไฟล์เสียง
-
 
 - [ ] 9.1 Setup File Storage
 
@@ -446,7 +419,6 @@
   - Implement file type validation
   - Implement file size validation
   - เขียน unit tests
-
 
 - [ ] 9.2 Implement Upload Audio API
 
@@ -461,14 +433,12 @@
   - Return audio file data
   - เขียน integration tests
 
-
 - [ ] 9.3 Implement Get Audio File API
 
   - สร้าง GET `/api/v1/audio/:audioId` endpoint
   - Return audio file data พร้อม signed URL
   - Check user ownership
   - เขียน integration tests
-
 
 - [ ] 9.4 Implement Stream Audio API
 
@@ -477,7 +447,6 @@
   - Redirect to signed URL หรือ stream file directly
   - Check user ownership
   - เขียน integration tests
-
 
 - [ ] 9.5 Implement Delete Audio API
       
@@ -488,11 +457,9 @@
   - Check user ownership
   - เขียน integration tests
 
-
 - [ ] 10. File Upload UI (Frontend)
       
   - สร้าง UI สำหรับอัปโหลดไฟล์
-
 
 - [ ] 10.1 Create Project Detail Page
       
@@ -501,7 +468,6 @@
   - แสดงรายการไฟล์เสียงทั้งหมด
   - เพิ่ม "Upload Audio" button (3D floating button)
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 10.2 Create Audio Upload Component
       
@@ -513,7 +479,6 @@
   - ใช้ 3D button สำหรับ Upload
   - Comment อธิบายแต่ละส่วน
 
-
 - [ ] 10.3 Create Audio File List Component
       
   - แสดงรายการไฟล์เสียงเป็น table หรือ cards
@@ -521,7 +486,6 @@
   - เพิ่ม action buttons: View Transcript, Delete (3D buttons)
   - แสดง status badge (uploaded, processing, completed, failed)
   - Comment อธิบายแต่ละส่วน
-
 
 - [ ] 10.4 Integrate Upload with Backend
 
@@ -531,10 +495,6 @@
   - Handle upload errors
   - Refresh file list หลังอัปโหลดสำเร็จ
   - Comment อธิบายแต่ละส่วน
-
-
-
----
 
 
 
