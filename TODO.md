@@ -6,7 +6,7 @@
   - ตั้งค่า Development Environment
   - _Requirements: 24, 25_
 
-- [x] 1.1 Setup Frontend Project (Next.js + TypeScript + Tailwind)
+- [ ] 1.1 Setup Frontend Project (Next.js + TypeScript + Tailwind)
 
   - สร้างโปรเจกต์ Next.js 14 with App Router
   - ติดตั้ง TypeScript, Tailwind CSS, และ dependencies
@@ -24,7 +24,7 @@
     - ขั้นตอนติดตั้ง dependencies
     - การตั้งค่า environment variables
 
-- [x] 1.2 Setup Backend Project (Node.js + Express + TypeScript)
+- [ ] 1.2 Setup Backend Project (Node.js + Express + TypeScript)
 
 
   - สร้างโปรเจกต์ Node.js with Express
@@ -46,7 +46,7 @@
     - รายการ API endpoints ทั้งหมด (อัปเดตเมื่อเพิ่ม endpoint ใหม่)
 
 
-- [x] 1.3 Setup Database (PostgreSQL)
+- [ ] 1.3 Setup Database (PostgreSQL)
 
   - ติดตั้ง PostgreSQL
   - สร้าง database และ user
@@ -61,7 +61,7 @@
     - เพิ่มขั้นตอนติดตั้ง PostgreSQL
     - เพิ่มคำสั่ง setup database
 
-- [x] 1.4 Create Design System Components
+- [ ] 1.4 Create Design System Components
 
   - สร้าง Button component (3D floating effect)
   - สร้าง Input component (dark theme)
@@ -71,14 +71,14 @@
   - สร้าง Loading spinner component
   - เขียน Storybook สำหรับแต่ละ component
 
-- [x] 2. Database Schema Implementation
+- [ ] 2. Database Schema Implementation
 
 
   - สร้างตารางทั้งหมดตาม database-schema.md
   - ตั้งค่า relationships และ foreign keys
   - สร้าง indexes
 
-- [x] 2.1 Create User และ Role Tables
+- [ ] 2.1 Create User และ Role Tables
 
   - สร้างตาราง `users` พร้อม columns ทั้งหมด
   - สร้างตาราง `roles` และ insert default roles (admin, free, pro)
@@ -87,7 +87,7 @@
   - สร้าง indexes: `users.email`, `users.role_id`
   - เขียน migration script
 
-- [x] 2.2 Create Project และ Audio Tables
+- [ ] 2.2 Create Project และ Audio Tables
 
   - สร้างตาราง `projects` พร้อม slug generation
   - สร้างตาราง `audio_files` พร้อม status enum
@@ -95,7 +95,7 @@
   - เขียน migration script
   - _Requirements: 27.2, 2, 3_
 
-- [x] 2.3 Create Transcript และ Translation Tables
+- [ ] 2.3 Create Transcript และ Translation Tables
 
   - สร้างตาราง `transcripts` พร้อม JSONB column
   - สร้างตาราง `transcript_segments`
@@ -104,7 +104,7 @@
   - สร้าง indexes ที่จำเป็น
   - เขียน migration script
 
-- [x] 2.4 Create AI Model และ Job Tables
+- [ ] 2.4 Create AI Model และ Job Tables
 
   - สร้างตาราง `ai_models` พร้อม config_json
   - สร้างตาราง `jobs` พร้อม status enum
