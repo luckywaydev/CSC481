@@ -4,7 +4,7 @@
   - สร้างโครงสร้างโปรเจกต์ Frontend และ Backend
   - ตั้งค่า Design System (Dark + Purple theme, 3D buttons)
   - ตั้งค่า Development Environment
-  - _Requirements: 24, 25_
+
 
 - [ ] 1.1 Setup Frontend Project (Next.js + TypeScript + Tailwind)
 
