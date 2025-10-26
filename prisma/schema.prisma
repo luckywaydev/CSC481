@@ -1,4 +1,4 @@
-// Prisma Schema - ตั้งค่าพื้นฐาน
+// Prisma Schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +8,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ตอนนี้ยังไม่มี model แค่ setup connection ก่อน
+// User model - ข้อมูลผู้ใช้
+model User {
+  id          Int         @id @default(autoincrement())
+  email       String      @unique
+  password    String
+  username    String
+  roleId      Int         @default(2) // default: free user
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@index([email])
+}
+
+// Role model - บทบาทผู้ใช้
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String @unique // admin, free, pro
+
+  // Relations
+  users User[]
+}
