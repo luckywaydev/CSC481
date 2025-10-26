@@ -1,32 +1,48 @@
-# ตั้งค่า backend เสร็จแล้ว
+# server รันได้แล้ว
 
-ตอนนี้ติดตั้ง Node.js + TypeScript เสร็จแล้ว ยังไม่มี server แค่ setup project พื้นฐาน
+ตอนนี้ Express server รันได้แล้ว port 4000 มี health check endpoint
 
-## ติดตั้งอะไรบ้าง
+## ทำอะไรไปบ้าง
 
-- Node.js + TypeScript
-- Express (ยังไม่ได้ใช้)
-- dotenv สำหรับ environment variables
-- nodemon สำหรับ hot reload
+- สร้าง Express server
+- ตั้งค่า middleware:
+  - CORS (ให้ frontend เรียกได้)
+  - JSON parser
+  - URL-encoded parser
+- สร้าง endpoints:
+  - GET /health (health check)
+  - GET /api/v1 (API info)
+- ทำ error handling:
+  - 404 handler
 
-## โครงสร้างโฟลเดอร์
+## วิธีรัน
 
+```bash
+npm install
+npm run dev
 ```
-src/
-├── controllers/  # จะเก็บ API handlers
-├── services/     # จะเก็บ business logic
-├── routes/       # จะเก็บ route definitions
-└── utils/        # จะเก็บ utilities
-```
+
+เปิด http://localhost:4000/health จะเห็น `{"status":"ok"}`
 
 ## ปัญหาที่เจอ
 
-- ไม่รู้ว่าต้องติดตั้งอะไรบ้าง ต้องไปดู docs
-- TypeScript config ยุ่งยาก ต้องลองหลายครั้ง
-- ตอนแรกไม่รู้ว่าต้องสร้างโฟลเดอร์อะไรบ้าง
+- ตอนแรกไม่รู้ว่าต้องใส่ cors
+  - frontend เรียก API แล้ว error CORS
+  - ต้อง install cors และตั้งค่า origin
+  
+- ไม่รู้ว่า middleware ต้องเรียงลำดับยังไง
+  - ต้องใส่ cors ก่อน routes
+  - ต้องใส่ json parser ก่อนใช้ req.body
+
+## สิ่งที่เรียนรู้
+
+- การสร้าง Express server
+- การใช้ middleware
+- การตั้งค่า CORS
+- การทำ health check endpoint
 
 ## ต่อไปจะทำอะไร
 
-- สร้าง Express server
 - เชื่อม database
+- ทำ auth service
 - ทำ API endpoints
