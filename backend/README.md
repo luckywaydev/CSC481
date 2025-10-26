@@ -1,48 +1,45 @@
-# server รันได้แล้ว
+# เชื่อม database ได้แล้ว
 
-ตอนนี้ Express server รันได้แล้ว port 4000 มี health check endpoint
+ตอนนี้เชื่อม PostgreSQL ได้แล้ว ใช้ Prisma เป็น ORM
 
 ## ทำอะไรไปบ้าง
 
-- สร้าง Express server
-- ตั้งค่า middleware:
-  - CORS (ให้ frontend เรียกได้)
-  - JSON parser
-  - URL-encoded parser
-- สร้าง endpoints:
-  - GET /health (health check)
-  - GET /api/v1 (API info)
-- ทำ error handling:
-  - 404 handler
+- ติดตั้ง Prisma
+- สร้าง schema.prisma (ยังไม่มี model)
+- สร้าง Prisma Client
+- ตั้งค่า DATABASE_URL
 
-## วิธีรัน
+## วิธีใช้
 
-```bash
-npm install
-npm run dev
+1. สร้าง database ใน PostgreSQL
+```sql
+CREATE DATABASE transcription_db;
+CREATE USER transcription_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE transcription_db TO transcription_user;
 ```
 
-เปิด http://localhost:4000/health จะเห็น `{"status":"ok"}`
+2. สร้าง .env
+```
+DATABASE_URL="postgresql://transcription_user:your_password@localhost:5432/transcription_db"
+```
+
+3. Generate Prisma Client
+```bash
+npm run prisma:generate
+```
 
 ## ปัญหาที่เจอ
 
-- ตอนแรกไม่รู้ว่าต้องใส่ cors
-  - frontend เรียก API แล้ว error CORS
-  - ต้อง install cors และตั้งค่า origin
+- ไม่รู้ว่าจะใช้ ORM ไหม
+  - เลือก Prisma เพราะใช้ง่าย
+  - มี TypeScript support ดี
   
-- ไม่รู้ว่า middleware ต้องเรียงลำดับยังไง
-  - ต้องใส่ cors ก่อน routes
-  - ต้องใส่ json parser ก่อนใช้ req.body
-
-## สิ่งที่เรียนรู้
-
-- การสร้าง Express server
-- การใช้ middleware
-- การตั้งค่า CORS
-- การทำ health check endpoint
+- ติดตั้ง PostgreSQL ยุ่งยาก
+  - ต้องสร้าง database และ user
+  - ต้องตั้งค่า permissions
 
 ## ต่อไปจะทำอะไร
 
-- เชื่อม database
+- สร้าง database models
 - ทำ auth service
 - ทำ API endpoints
