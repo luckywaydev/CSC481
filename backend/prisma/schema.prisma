@@ -21,6 +21,7 @@ model User {
 
   // Relations
   role Role @relation(fields: [roleId], references: [id])
+  projects Project[]
 
   @@index([email])
 }
@@ -32,4 +33,19 @@ model Role {
 
   // Relations
   users User[]
+}
+
+// project model - โปรเจกต์ของผู้ใช้
+model Project {
+  id            Int         @id @default(autoincrement())
+  name          String
+  slug          String      @unique
+  userId        Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
