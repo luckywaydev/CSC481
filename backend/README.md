@@ -1,45 +1,34 @@
-# เชื่อม database ได้แล้ว
+# ทำระบบ login เสร็จ
 
-ตอนนี้เชื่อม PostgreSQL ได้แล้ว ใช้ Prisma เป็น ORM
+ตอนนี้มี password hashing กับ JWT token แล้ว
 
 ## ทำอะไรไปบ้าง
 
-- ติดตั้ง Prisma
-- สร้าง schema.prisma (ยังไม่มี model)
-- สร้าง Prisma Client
-- ตั้งค่า DATABASE_URL
-
-## วิธีใช้
-
-1. สร้าง database ใน PostgreSQL
-```sql
-CREATE DATABASE transcription_db;
-CREATE USER transcription_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE transcription_db TO transcription_user;
-```
-
-2. สร้าง .env
-```
-DATABASE_URL="postgresql://transcription_user:your_password@localhost:5432/transcription_db"
-```
-
-3. Generate Prisma Client
-```bash
-npm run prisma:generate
-```
+- ติดตั้ง bcrypt สำหรับ hash password
+- ติดตั้ง jsonwebtoken สำหรับ JWT
+- สร้าง password utilities:
+  - hashPassword() - hash password
+  - comparePassword() - เช็ค password
+- สร้าง JWT utilities:
+  - generateAccessToken() - สร้าง access token (24h)
+  - generateRefreshToken() - สร้าง refresh token (7d)
+  - verifyAccessToken() - verify token
+  - verifyRefreshToken() - verify refresh token
 
 ## ปัญหาที่เจอ
 
-- ไม่รู้ว่าจะใช้ ORM ไหม
-  - เลือก Prisma เพราะใช้ง่าย
-  - มี TypeScript support ดี
+- ไม่รู้ว่า bcrypt ใช้ยังไง
+  - ต้องใช้ async/await
+  - ต้องกำหนด salt rounds (ใช้ 10)
   
-- ติดตั้ง PostgreSQL ยุ่งยาก
-  - ต้องสร้าง database และ user
-  - ต้องตั้งค่า permissions
+- ไม่รู้ว่า JWT ทำงานยังไง
+  - ต้องมี secret key
+  - ต้องกำหนด expiry time
+  - access token หมดอายุเร็ว (24h)
+  - refresh token หมดอายุช้า (7d)
 
 ## ต่อไปจะทำอะไร
 
-- สร้าง database models
-- ทำ auth service
-- ทำ API endpoints
+- ทำ register API
+- ทำ login API
+- ทำ token refresh API
