@@ -1,5 +1,8 @@
 ## Tasks
 
+// ทำเฉพาะงานหลักๆไปก่อนพวกยิบย่อยคนทำทีหลัง อันไหนข้ามได้ข้าม
+
+
 - [X] 1. Setup Project และ Design System
 
 - [X] 1.1 Setup Frontend Project 
