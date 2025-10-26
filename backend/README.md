@@ -21,7 +21,7 @@
   - ต้องใช้ async/await
   - ต้องกำหนด salt rounds (ใช้ 10)
   
-- ไม่รู้ว่า JWT ทำงานยังไง
+- ยังดำหนด JWT ไม่ถูก
   - ต้องมี secret key
   - ต้องกำหนด expiry time
   - access token หมดอายุเร็ว (24h)
