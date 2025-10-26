@@ -2,8 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* สไตล์พื้นฐาน */
+/* สไตล์พื้นฐาน - Dark theme */
+:root {
+  --background: #0a0a0f;
+  --background-secondary: #13131a;
+  --background-tertiary: #1a1a24;
+  --foreground: #ffffff;
+  --foreground-secondary: #a0a0b0;
+  
+  /* สีม่วงหลัก */
+  --purple-primary: #a855f7;
+  --purple-dark: #9333ea;
+}
+
 body {
-  background-color: #0a0a0f;
-  color: #ffffff;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Scrollbar แบบสวยๆ - ลองทำดู */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--purple-primary);
+  border-radius: 6px;
+}
+
+/* เลือกข้อความเป็นสีม่วง */
+::selection {
+  background: var(--purple-primary);
+  color: white;
 }
