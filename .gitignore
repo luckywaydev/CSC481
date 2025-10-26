@@ -1,0 +1,20 @@
+# Backend folder - DO NOT COMMIT
+backend/
+
+# Documentation - DO NOT COMMIT
+TODO.md
+
+# Environment variables
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Prisma
+prisma/migrations/dev.db
+prisma/migrations/dev.db-journal
