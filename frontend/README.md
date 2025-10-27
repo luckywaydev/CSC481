@@ -1,38 +1,44 @@
-# ทำหน้า login เสร็จแล้ว
+# ทำหน้า dashboard เสร็จแล้ว
 
-ตอนนี้มีหน้า login ที่ใช้ Input และ Button component แล้ว ง่ายกว่าหน้า register เพราะมีแค่ 2 ช่อง
+ตอนนี้มีหน้า dashboard พื้นฐานแล้ว มี sidebar กับ header ยังไม่ responsive
 
 ## ทำอะไรไปบ้าง
 
-- สร้างหน้า `/login`
-- ใช้ Input component สำหรับ:
-  - Email
-  - Password
-- ใช้ Button component แบบ 3D
-- ทำ validation แบบง่ายๆ:
-  - เชคว่ากรอกครบไหม
-  - ไม่ได้เชค format เพราะ login ไม่จำเป็น
-- เพิ่มลิงก์ "ลืมรหัสผ่าน?" (ยังไม่ได้ทำหน้านั้น)
-- เพิ่มลิงก์ไปหน้า register
+- สร้างหน้า `/dashboard`
+- ทำ Sidebar:
+  - Logo
+  - Navigation menu (Dashboard, Projects, Settings)
+  - Fixed ด้านซ้าย
+- ทำ Main Content:
+  - Header
+  - Stats Cards (3 cards)
+  - Recent Projects section
+- สร้าง `lib/api.ts` สำหรับเชื่อม backend (ยังไม่ได้เชื่อมจริง)
 
 ## ปัญหาที่เจอ
 
-- ไม่แน่ใจว่าต้อง validate email format ไหม
-  - ตัดสินใจว่าไม่ต้อง เพราะ login แค่เชคว่ากรอกหรือยัง
-  - ถ้า format ผิด backend จะบอกอยู่แล้ว
+- sidebar ตรงนี้ยังไม่ responsive
+  - ใช้ fixed width 64 (256px)
+  - บนมือถือจะเละ
+  - TODO: ทำ mobile ทีหลัง
   
-- ยังไม่ได้เชื่อม backend
-  - ตอนนี้แค่ console.log
-  - TODO: เชื่อมทีหลัง
+- ยังไม่มีข้อมูลจริง
+  - แสดงเลข 0 ทั้งหมด
+  - TODO: เชื่อม API ทีหลัง
+  
+- ยังไม่ได้ทำ logout
+  - TODO: เพิ่ม user menu ทีหลัง
 
 ## สิ่งที่เรียนรู้
 
-- หน้า login ง่ายกว่าหน้า register เยอะ
-- ใช้ component ที่สร้างไว้ทำให้เขียนโค้ดเร็วขึ้น
-- การทำ validation แบบง่ายๆ ก็พอ
+- การทำ sidebar layout ด้วย fixed position
+- การใช้ ml-64 (margin-left) สำหรับ main content
+- การทำ grid layout สำหรับ stats cards
+- การใช้ emoji แทน icon (ง่ายกว่า)
 
 ## ต่อไปจะทำอะไร
 
-- ทำหน้า dashboard
+- ทำ mobile responsive
 - เชื่อม backend API
-- ทำหน้า forgot password (ถ้ามีเวลา)
+- เพิ่ม user menu
+- ทำหน้า projects
