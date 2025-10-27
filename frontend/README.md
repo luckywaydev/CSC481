@@ -25,17 +25,4 @@
 - ตอนแรกไม่รู้ว่าจะทำ shadow 3D ยังไง ต้องลองหลายค่า
 - ลอง shadow-3d หลายแบบถึงจะได้ที่ชอบ
 - ไม่แน่ใจว่า forwardRef ใช้ยังไง ต้องไปดู docs
-- TypeScript บ่นเรื่อง type ต้องแก้หลายที
-
-## สิ่งที่เรียนรู้
-
-- การทำ component ที่ใช้ซ้ำได้
-- การใช้ TypeScript interface กับ React
-- การทำ 3D effect ด้วย shadow และ transform
-- การใช้ forwardRef สำหรับ Input
-
-## ต่อไปจะทำอะไร
-
-- ใช้ Button component ในหน้า landing page
-- ทำหน้า register ด้วย Input component
-- ทำหน้า login
+- TypeScript ต้องแก้หลายที
