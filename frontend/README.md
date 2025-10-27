@@ -1,41 +1,48 @@
-# ทำ Design System เสร็จแล้ว
+# ทำหน้าสมัครสมาชิกเสร็จแล้ว
 
-ตอนนี้มี component ที่ใช้ซ้ำได้แล้ว ไม่ต้องเขียน style ซ้ำๆ มีปุ่มแบบ 3D, Input, และ Card
+ตอนนี้มีหน้า register ที่ใช้ Input component และ Button component แล้ว มี validation ด้วย
 
 ## ทำอะไรไปบ้าง
 
-- สร้าง Button component แบบ 3D floating effect
-  - มี 4 แบบ: primary, secondary, outline, ghost
-  - มี 3 ขนาด: sm, md, lg
-  - มี shadow แบบ 3D ตอน hover ยกขึ้น
-  
-- สร้าง Input component สำหรับ form
-  - มี label และ error message
-  - focus แล้วเป็นสีม่วง
-  - ใช้กับหน้า login/register ได้
-  
-- สร้าง Card component
-  - ใช้ใส่เนื้อหาต่างๆ
-  - มี hover effect ได้
-  
-- เพิ่ม shadow-3d ใน tailwind.config.ts
+- สร้างหน้า `/register` 
+- ใช้ Input component สำหรับ form fields
+  - Email
+  - Username
+  - Password
+  - Confirm Password
+- ใช้ Button component แบบ 3D
+- ทำ validation:
+  - เชค email format
+  - เชค password length (อย่างน้อย 8 ตัว)
+  - เชคว่า password ตรงกันไหม
+  - เชคว่ากรอกครบทุกช่องไหม
+- แสดง error message ถ้ากรอกผิด
 
 ## ปัญหาที่เจอ
 
-- ตอนแรกไม่รู้ว่าจะทำ shadow 3D ยังไง ต้องลองหลายค่า
-- ลอง shadow-3d หลายแบบถึงจะได้ที่ชอบ
-- ไม่แน่ใจว่า forwardRef ใช้ยังไง ต้องไปดู docs
-- TypeScript บ่นเรื่อง type ต้องแก้หลายที
+- ตอนแรกไม่รู้ว่าจะทำ validation ยังไง
+  - ใช้ regex สำหรับ email: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`
+  - เชค length สำหรับ password
+  - เปรียบเทียบ password กับ confirmPassword
+  
+- ไม่รู้ว่าจะเก็บ error messages ยังไง
+  - ใช้ object: `Record<string, string>`
+  - เก็บ error แยกตาม field name
+  
+- ยังไม่ได้เชื่อม backend
+  - ตอนนี้แค่ console.log ข้อมูล
+  - TODO: เชื่อมกับ API ทีหลัง
 
 ## สิ่งที่เรียนรู้
 
-- การทำ component ที่ใช้ซ้ำได้
-- การใช้ TypeScript interface กับ React
-- การทำ 3D effect ด้วย shadow และ transform
-- การใช้ forwardRef สำหรับ Input
+- การทำ form validation ใน React
+- การใช้ useState เก็บข้อมูล form
+- การใช้ TypeScript Record type
+- การใช้ regex validate email
+- การใช้ component ที่สร้างไว้ (Input, Button)
 
 ## ต่อไปจะทำอะไร
 
-- ใช้ Button component ในหน้า landing page
-- ทำหน้า register ด้วย Input component
 - ทำหน้า login
+- เชื่อม backend API
+- เพิ่ม loading state
