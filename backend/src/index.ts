@@ -48,6 +48,12 @@ app.get('/api/v1', (req, res) => {
   });
 });
 
+// Import routes
+import authRoutes from './routes/authRoutes';
+
+// API Routes
+app.use('/api/v1/auth', authRoutes);
+
 // === Error Handling ===
 
 // 404 handler - ถ้าไม่เจอ route
