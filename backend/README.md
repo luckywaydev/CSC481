@@ -1,36 +1,30 @@
-# API login เสร็จ
+# ทำ refresh token ละจู้
 
-ตอนนี้ทดสอบแล้วใช้ได้
 
-## ทำอะไรไปบ้าง
+## ทำแล้ว
 
-- เพิ่ม login() function ใน authController
-  - หา user จาก email
-  - เชค password ด้วย comparePassword()
-  - สร้าง tokens
-  - return user data และ tokens
-- เพิ่ม POST /login route
+- เพิ่ม refreshToken() function
+  - รับ refresh token จาก request
+  - verify refresh token
+  - สร้าง access token และ refresh token ใหม่
+  - return tokens ใหม่
+- เพิ่ม POST /refresh route
 
 ## วิธีทดสอบ
 
 ```bash
-POST http://localhost:4000/api/v1/auth/login
+POST http://localhost:4000/api/v1/auth/refresh
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "password": "password123"
+  "refreshToken": "your-refresh-token-here"
 }
 ```
 
 ## ปัญหาที่เจอ
 
-- ไม่รู้ว่าควร return error message แบบไหน
-  - ถ้า email ไม่เจอ หรือ password ผิด
-  - ควร return message เดียวกัน "Invalid email or password"
-  - เพื่อความปลอดภัย ไม่บอกว่า email มีหรือไม่มี
-
-## ต่อไปจะทำอะไร
-
-- ทำ token refresh API
-- เพิ่ม rate limiting
+- ตรงนี้ยังไม่แน่ใจว่าทำถูกไหม แต่ใช้ได้
+  - verify refresh token
+  - สร้าง tokens ใหม่ทั้งคู่
+  - ควรจะเก็บ refresh token ใน database ไหม?
+  - ตอนนี้ยังไม่ได้เก็บ

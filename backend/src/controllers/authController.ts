@@ -122,3 +122,53 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+// Refresh Token - ต่ออายุ token
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        error: {
+          code: 'MISSING_TOKEN',
+          message: 'Refresh token is required',
+        },
+      });
+    }
+
+    // Verify refresh token
+    const { verifyRefreshToken } = require('../utils/jwt');
+    const decoded = verifyRefreshToken(refreshToken);
+
+    if (!decoded) {
+      return res.status(401).json({
+        error: {
+          code: 'INVALID_TOKEN',
+          message: 'Invalid or expired refresh token',
+        },
+      });
+    }
+
+    // สร้าง tokens ใหม่
+    const newAccessToken = generateAccessToken(decoded.userId);
+    const newRefreshToken = generateRefreshToken(decoded.userId);
+
+    // Return tokens ใหม่
+    res.json({
+      tokens: {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      },
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'An error occurred during token refresh',
+      },
+    });
+  }
+};
