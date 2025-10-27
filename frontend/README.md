@@ -1,31 +1,41 @@
-# ทำหน้าแรกเสร็จแล้ว
+# ทำ Design System เสร็จแล้ว
 
-ตอนนี้หน้าเว็บสวยขึ้นเยอะ มีปุ่ม มีข้อความ มีการ์ดแสดงฟีเจอร์ ใช้สีม่วงกับพื้นหลังมืดตามที่วางแผนไว้
+ตอนนี้มี component ที่ใช้ซ้ำได้แล้ว ไม่ต้องเขียน style ซ้ำๆ มีปุ่มแบบ 3D, Input, และ Card
 
 ## ทำอะไรไปบ้าง
 
-- ทำ Navigation Bar ด้านบน มี logo กับปุ่ม login/register
-- ทำ Hero Section (ส่วนหลัก) มีหัวข้อใหญ่ๆ กับปุ่ม CTA
-- ทำพื้นหลังแบบ gradient สีม่วง ดูเท่ดี
-- ทำ Features Section แสดง 3 ฟีเจอร์หลัก (ถอดเสียง, แปลภาษา, แก้ไข)
-- ทำ Footer ด้านล่าง
+- สร้าง Button component แบบ 3D floating effect
+  - มี 4 แบบ: primary, secondary, outline, ghost
+  - มี 3 ขนาด: sm, md, lg
+  - มี shadow แบบ 3D ตอน hover ยกขึ้น
+  
+- สร้าง Input component สำหรับ form
+  - มี label และ error message
+  - focus แล้วเป็นสีม่วง
+  - ใช้กับหน้า login/register ได้
+  
+- สร้าง Card component
+  - ใช้ใส่เนื้อหาต่างๆ
+  - มี hover effect ได้
+  
+- เพิ่ม shadow-3d ใน tailwind.config.ts
 
 ## ปัญหาที่เจอ
 
-- ตอนแรกไม่รู้ว่าจะทำ gradient ยังไง ต้องไปดู Tailwind docs
-- ลอง blur-3xl หลายค่าถึงจะได้แบบที่ชอบ
-- ยังไม่มี Button component เลยใช้ `<a>` tag ธรรมดาก่อน
-- ตรงนี้ยังไม่สวยเท่าไหร่ แต่ใช้ได้ก่อน
+- ตอนแรกไม่รู้ว่าจะทำ shadow 3D ยังไง ต้องลองหลายค่า
+- ลอง shadow-3d หลายแบบถึงจะได้ที่ชอบ
+- ไม่แน่ใจว่า forwardRef ใช้ยังไง ต้องไปดู docs
+- TypeScript บ่นเรื่อง type ต้องแก้หลายที
 
 ## สิ่งที่เรียนรู้
 
-- การใช้ Tailwind CSS ทำ gradient background
-- การใช้ `backdrop-blur` ทำ navbar แบบโปร่งใส
-- การใช้ grid layout แสดง cards
-- การทำ responsive ด้วย `md:` prefix
+- การทำ component ที่ใช้ซ้ำได้
+- การใช้ TypeScript interface กับ React
+- การทำ 3D effect ด้วย shadow และ transform
+- การใช้ forwardRef สำหรับ Input
 
 ## ต่อไปจะทำอะไร
 
-- ทำ Button component แบบ 3D
-- ทำหน้า register กับ login
-- ทำ Input component สำหรับ form
+- ใช้ Button component ในหน้า landing page
+- ทำหน้า register ด้วย Input component
+- ทำหน้า login
