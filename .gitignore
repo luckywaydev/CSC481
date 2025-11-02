@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+/presentation/
+/docs/
+*.md
+!README.md
+!SETUP_Linux.md
+!backend/scripts/MANUAL_SETUP.md
+
+# Keep essential configs
+!backend/README.md
+!frontend/README.md
+!backend/prisma/README.md
+!backend/scripts/README.md
+!SETUP_Linux.md
+!backend/scripts/MANUAL_SETUP.md

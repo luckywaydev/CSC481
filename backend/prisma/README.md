@@ -1,0 +1,29 @@
+# Prisma Migrations
+
+Prisma schema และ migration files
+
+## ไฟล์
+
+- `schema.prisma` - Database schema definition
+- `migrations/` - Migration history (generated)
+
+## คำสั่งที่ใช้บ่อย
+
+```bash
+# Generate Prisma Client
+npm run prisma:generate
+
+# Create and run migration
+npm run prisma:migrate
+
+# Push schema to database (without migration)
+npm run prisma:push
+
+# Open Prisma Studio (GUI)
+npm run prisma:studio
+```
+
+- ไม่ควรแก้ไข migration files ที่ถูกสร้างแล้ว
+- ควร commit migration files เข้า git
+- ใช้ `prisma:migrate` สำหรับ prod
+- ใช้ `prisma:push` สำหรับ test

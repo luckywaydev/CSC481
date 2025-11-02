@@ -1,0 +1,452 @@
+/**
+ * Prisma Schema สำหรับระบบถอดเสียงและแปลภาษา
+ * 
+ * คำอธิบาย:
+ * - กำหนดโครงสร้างฐานข้อมูลทั้งหมด
+ * - สร้าง TypeScript types อัตโนมัติ
+ * - จัดการ migrations
+ * 
+ * เอกสาร: https://pris.ly/d/prisma-schema
+ */
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================================
+// User และ Role Models
+// ===================================
+
+/**
+ * Role Model
+ * บทบาทของผู้ใช้ในระบบ (admin, free, pro)
+ */
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // admin, free, pro
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  users        User[]
+  roleSettings RoleSettings?
+
+  @@map("roles")
+}
+
+/**
+ * RoleSettings Model
+ * การตั้งค่าเริ่มต้นสำหรับแต่ละ Role
+ */
+model RoleSettings {
+  id                  String @id @default(uuid())
+  roleId              String @unique @map("role_id")
+  maxFileSizeMb       Int    @default(100) @map("max_file_size_mb")
+  maxFilesPerMonth    Int    @default(10) @map("max_files_per_month")
+  audioRetentionHours Int    @default(1) @map("audio_retention_hours")
+  canUseApiMode       Boolean @default(true) @map("can_use_api_mode")
+  canUseLocalMode     Boolean @default(false) @map("can_use_local_mode")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@map("role_settings")
+}
+
+/**
+ * User Model
+ * ข้อมูลผู้ใช้ในระบบ
+ */
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  username     String?
+  roleId       String    @map("role_id")
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  role          Role           @relation(fields: [roleId], references: [id])
+  userSettings  UserSettings?
+  projects      Project[]
+  jobs          Job[]
+  notifications Notification[]
+
+  @@index([email])
+  @@index([username])
+  @@index([roleId])
+  @@map("users")
+}
+
+/**
+ * UserSettings Model
+ * การตั้งค่าเฉพาะผู้ใช้ (override RoleSettings)
+ */
+model UserSettings {
+  id                  String  @id @default(uuid())
+  userId              String  @unique @map("user_id")
+  maxFileSizeMb       Int?    @map("max_file_size_mb")
+  maxFilesPerMonth    Int?    @map("max_files_per_month")
+  audioRetentionHours Int?    @map("audio_retention_hours")
+  canUseApiMode       Boolean? @map("can_use_api_mode")
+  canUseLocalMode     Boolean? @map("can_use_local_mode")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// ===================================
+// Project และ Audio Models
+// ===================================
+
+/**
+ * Project Model
+ * โปรเจกต์สำหรับจัดกลุ่ม audio files
+ */
+model Project {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  name        String
+  slug        String
+  description String?
+  isArchived  Boolean   @default(false) @map("is_archived")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  // Relations
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  audioFiles AudioFile[]
+
+  @@unique([userId, slug], name: "unique_user_slug")
+  @@index([userId])
+  @@index([isArchived])
+  @@map("projects")
+}
+
+/**
+ * AudioFile Model
+ * ไฟล์เสียงที่อัปโหลดเข้าระบบ
+ */
+model AudioFile {
+  id               String    @id @default(uuid())
+  projectId        String    @map("project_id")
+  originalFilename String    @map("original_filename")
+  storedFilename   String    @map("stored_filename")
+  filePath         String    @map("file_path")
+  fileSizeBytes    BigInt    @map("file_size_bytes")
+  durationSeconds  Float?    @map("duration_seconds")
+  mimeType         String    @map("mime_type")
+  status           AudioFileStatus @default(UPLOADED)
+  uploadedAt       DateTime  @default(now()) @map("uploaded_at")
+  processedAt      DateTime? @map("processed_at")
+  expiresAt        DateTime? @map("expires_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  // Relations
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  transcripts Transcript[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("audio_files")
+}
+
+/**
+ * AudioFileStatus Enum
+ * สถานะของไฟล์เสียง
+ */
+enum AudioFileStatus {
+  UPLOADED    // อัปโหลดเสร็จแล้ว
+  PROCESSING  // กำลังประมวลผล
+  COMPLETED   // ประมวลผลเสร็จแล้ว
+  FAILED      // ประมวลผลล้มเหลว
+  EXPIRED     // ไฟล์หมดอายุแล้ว
+}
+
+// ===================================
+// Transcript และ Translation Models
+// ===================================
+
+/**
+ * Transcript Model
+ * ข้อความที่ถอดจากเสียง
+ */
+model Transcript {
+  id              String   @id @default(uuid())
+  audioFileId     String   @map("audio_file_id")
+  language        String
+  wordCount       Int      @default(0) @map("word_count")
+  confidenceScore Float?   @map("confidence_score")
+  aiModelId       String?  @map("ai_model_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  audioFile AudioFile              @relation(fields: [audioFileId], references: [id], onDelete: Cascade)
+  segments  TranscriptSegment[]
+  speakers  Speaker[]
+  translations Translation[]
+
+  @@index([audioFileId])
+  @@map("transcripts")
+}
+
+/**
+ * TranscriptSegment Model
+ * ข้อความในแต่ละช่วงเวลา
+ */
+model TranscriptSegment {
+  id              String   @id @default(uuid())
+  transcriptId    String   @map("transcript_id")
+  segmentIndex    Int      @map("segment_index")
+  startTime       Float    @map("start_time")
+  endTime         Float    @map("end_time")
+  text            String   @db.Text
+  speakerId       String?  @map("speaker_id")
+  confidenceScore Float?   @map("confidence_score")
+  isEdited        Boolean  @default(false) @map("is_edited")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+  speaker    Speaker?   @relation(fields: [speakerId], references: [id])
+
+  @@index([transcriptId])
+  @@index([speakerId])
+  @@map("transcript_segments")
+}
+
+/**
+ * Speaker Model
+ * ผู้พูดในไฟล์เสียง
+ */
+model Speaker {
+  id           String   @id @default(uuid())
+  transcriptId String   @map("transcript_id")
+  name         String
+  displayOrder Int      @map("display_order")
+  segmentCount Int      @default(0) @map("segment_count")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  transcript Transcript          @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+  segments   TranscriptSegment[]
+
+  @@index([transcriptId])
+  @@map("speakers")
+}
+
+/**
+ * Translation Model
+ * ข้อความที่แปลเป็นภาษาอื่น
+ */
+model Translation {
+  id             String   @id @default(uuid())
+  transcriptId   String   @map("transcript_id")
+  targetLanguage String   @map("target_language")
+  contentJson    Json     @map("content_json")
+  aiModelId      String?  @map("ai_model_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+
+  @@unique([transcriptId, targetLanguage])
+  @@index([transcriptId])
+  @@map("translations")
+}
+
+// ===================================
+// AI Model และ Job Models
+// ===================================
+
+/**
+ * AIModel Model
+ * AI models สำหรับถอดเสียงและแปลภาษา
+ */
+model AIModel {
+  id                 String      @id @default(uuid())
+  name               String
+  type               AIModelType
+  provider           String
+  apiEndpoint        String?     @map("api_endpoint")
+  configJson         Json?       @map("config_json")
+  isActive           Boolean     @default(true) @map("is_active")
+  isDefault          Boolean     @default(false) @map("is_default")
+  supportedLanguages String[]    @map("supported_languages")
+  description        String?     @db.Text
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  @@index([type])
+  @@index([isActive])
+  @@map("ai_models")
+}
+
+/**
+ * AIModelType Enum
+ * ประเภทของ AI Model
+ */
+enum AIModelType {
+  STT         // Speech-to-Text
+  TRANSLATION // Translation
+}
+
+/**
+ * Job Model
+ * งานในคิวสำหรับประมวลผล
+ */
+model Job {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  audioFileId  String?   @map("audio_file_id")
+  type         JobType
+  status       JobStatus @default(PENDING)
+  priority     Int       @default(0)
+  progress     Int       @default(0)
+  retryCount   Int       @default(0) @map("retry_count")
+  errorMessage String?   @map("error_message") @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at")
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  @@map("jobs")
+}
+
+/**
+ * JobType Enum
+ * ประเภทของงาน
+ */
+enum JobType {
+  TRANSCRIPTION // ถอดเสียง
+  TRANSLATION   // แปลภาษา
+}
+
+/**
+ * JobStatus Enum
+ * สถานะของงาน
+ */
+enum JobStatus {
+  PENDING    // รอประมวลผล
+  PROCESSING // กำลังประมวลผล
+  COMPLETED  // เสร็จแล้ว
+  FAILED     // ล้มเหลว
+  CANCELLED  // ยกเลิก
+}
+
+/**
+ * Notification Model
+ * การแจ้งเตือนผู้ใช้
+ */
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  link      String?
+  isRead    Boolean          @default(false) @map("is_read")
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+/**
+ * NotificationType Enum
+ * ประเภทการแจ้งเตือน
+ */
+enum NotificationType {
+  JOB_COMPLETED   // งานเสร็จแล้ว
+  JOB_FAILED      // งานล้มเหลว
+  FILE_EXPIRING   // ไฟล์ใกล้หมดอายุ
+  QUOTA_WARNING   // ใกล้ถึงขีดจำกัด
+  QUOTA_EXCEEDED  // เกินขีดจำกัด
+  SYSTEM          // แจ้งเตือนระบบ
+}
+
+/**
+ * Log Model
+ * บันทึกระบบและ error logs
+ */
+model Log {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  level       LogLevel
+  message     String   @db.Text
+  contextJson Json?    @map("context_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([level])
+  @@index([createdAt])
+  @@map("logs")
+}
+
+/**
+ * LogLevel Enum
+ * ระดับความสำคัญของ log
+ */
+enum LogLevel {
+  DEBUG   // ข้อมูลสำหรับ debug
+  INFO    // ข้อมูลทั่วไป
+  WARNING // คำเตือน
+  ERROR   // ข้อผิดพลาด
+  CRITICAL // ข้อผิดพลาดร้ายแรง
+}
+
+/**
+ * UsageStats Model
+ * สถิติการใช้งานของผู้ใช้แต่ละเดือน
+ */
+model UsageStats {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  month             Int      // เดือน (1-12)
+  year              Int      // ปี (2024, 2025, ...)
+  filesUploaded     Int      @default(0) @map("files_uploaded")
+  totalFileSizeBytes BigInt  @default(0) @map("total_file_size_bytes")
+  totalDurationSeconds Float @default(0) @map("total_duration_seconds")
+  transcriptionsCompleted Int @default(0) @map("transcriptions_completed")
+  translationsCompleted Int @default(0) @map("translations_completed")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, month, year])
+  @@index([userId])
+  @@index([year, month])
+  @@map("usage_stats")
+}
