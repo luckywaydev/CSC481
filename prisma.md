@@ -43,9 +43,8 @@ npx prisma db seed
 
 ### เข้า PostgreSQL
 ```
-
 psql -U postgres
-
+```
 ```
 psql -U transcription_user -d transcription_db -h localhost
 ```
