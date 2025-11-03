@@ -80,9 +80,9 @@ psql -U transcription_user -d transcription_db -h localhost
 
 ### ดู Structure ของตาราง
 ```sql
-\d "User"
+\d "Users"
 -- หรือ
-\d+ "User"
+\d+ "Users"
 ```
 
 ## ดู table
@@ -177,9 +177,9 @@ PGPASSWORD=your_password psql -U transcription_user -d transcription_db -h local
 
 ### ดู Structure ของตาราง
 ```sql
-\d "User"
+\d "Users"
 -- หรือ
-\d+ "User"
+\d+ "Users"
 ```
 
 ### ออกจาก psql
@@ -192,13 +192,13 @@ exit
 ### รัน SQL Command จาก Terminal โดยตรง
 ```bash
 # ดูข้อมูล User
-sudo -u postgres psql -d transcription_db -c "SELECT * FROM \"User\";"
+sudo -u postgres psql -d transcription_db -c "SELECT * FROM "Users";"
 
 # นับจำนวน users
-sudo -u postgres psql -d transcription_db -c "SELECT COUNT(*) FROM \"User\";"
+sudo -u postgres psql -d transcription_db -c "SELECT COUNT(*) FROM "Users";"
 
 # ดู user ล่าสุด 5 คน
-sudo -u postgres psql -d transcription_db -c "SELECT * FROM \"User\" ORDER BY id DESC LIMIT 5;"
+sudo -u postgres psql -d transcription_db -c "SELECT * FROM "Users" ORDER BY id DESC LIMIT 5;"
 ```
 
 ### Backup Database
@@ -249,24 +249,24 @@ sudo systemctl enable postgresql
 #### ดูข้อมูล Users
 ```sql
 -- ดูทั้งหมด
-SELECT * FROM "User";
+SELECT * FROM "Users";
 
 -- ดูเฉพาะบางคอลัมน์
 SELECT id, email, username FROM "User";
 
 -- ดูพร้อม Role
 SELECT u.id, u.email, u.username, r.name as role 
-FROM "User" u 
+FROM "Users" u 
 JOIN "Role" r ON u."roleId" = r.id;
 
 -- นับจำนวน
-SELECT COUNT(*) FROM "User";
+SELECT COUNT(*) FROM "Users";
 
 -- ดู user ล่าสุด
-SELECT * FROM "User" ORDER BY "createdAt" DESC LIMIT 5;
+SELECT * FROM "Users" ORDER BY "createdAt" DESC LIMIT 5;
 
 -- ค้นหา user
-SELECT * FROM "User" WHERE email LIKE '%test%';
+SELECT * FROM "Users" WHERE email LIKE '%test%';
 ```
 
 #### ดูข้อมูล Roles
@@ -277,7 +277,7 @@ SELECT * FROM "Role";
 -- นับจำนวน users ในแต่ละ role
 SELECT r.name, COUNT(u.id) as user_count
 FROM "Role" r
-LEFT JOIN "User" u ON r.id = u."roleId"
+LEFT JOIN "Users" u ON r.id = u."roleId"
 GROUP BY r.id, r.name;
 ```
 
@@ -289,11 +289,11 @@ SELECT * FROM "Project";
 -- ดูพร้อม user ที่เป็นเจ้าของ
 SELECT p.id, p.name, p.slug, u.username as owner
 FROM "Project" p
-JOIN "User" u ON p."userId" = u.id;
+JOIN "Users" u ON p."userId" = u.id;
 
 -- นับจำนวน projects ของแต่ละ user
 SELECT u.username, COUNT(p.id) as project_count
-FROM "User" u
+FROM "Users" u
 LEFT JOIN "Project" p ON u.id = p."userId"
 GROUP BY u.id, u.username;
 ```
@@ -363,12 +363,12 @@ npx prisma studio
 
 ### ดูข้อมูล (Windows)
 ```cmd
-psql -U postgres -d transcription_db -c "SELECT * FROM \"User\";"
+psql -U postgres -d transcription_db -c "SELECT * FROM "Users";"
 ```
 
 ### ดูข้อมูล (Linux)
 ```bash
-sudo -u postgres psql -d transcription_db -c "SELECT * FROM \"User\";"
+sudo -u postgres psql -d transcription_db -c "SELECT * FROM "Users";"
 ```
 
 ### Backup (Windows)
