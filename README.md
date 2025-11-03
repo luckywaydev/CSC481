@@ -1,3 +1,7 @@
+![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/luckywaydev/CSC481/main?style=for-the-badge&logo=github&logoColor=%23000000&label=main&labelColor=%23FFFFFF&color=%23006600)ㅤ‎‎![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/luckywaydev/CSC481/frontend?style=for-the-badge&logo=protondb&logoColor=%23000000&label=frontend&labelColor=%23FFFFFF&color=%232340E0D0)ㅤ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/luckywaydev/CSC481/backend?style=for-the-badge&logo=wxt&logoColor=%23000000&label=backend&labelColor=%23FFFFFF&color=%23B7178C)ㅤ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/t/luckywaydev/CSC481/database?style=for-the-badge&logo=postgresql&logoColor=%23000000&label=database&labelColor=%23FFFFFF&color=%23FF160B)
+
+
+
 # CSC481 Project
 
 ❗️ ตั้งสติก่อน push ขึ้น main
