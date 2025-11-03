@@ -1,9 +1,5 @@
 # Prisma Migrations
 
-Prisma schema และ migration files
-
-## ไฟล์
-
 - `schema.prisma` - Database schema definition
 - `migrations/` - Migration history (generated)
 
