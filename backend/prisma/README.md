@@ -7,7 +7,7 @@ Prisma schema และ migration files
 - `schema.prisma` - Database schema definition
 - `migrations/` - Migration history (generated)
 
-## คำสั่งที่ใช้บ่อย
+## คำสั่ง
 
 ```bash
 # Generate Prisma Client
@@ -23,7 +23,7 @@ npm run prisma:push
 npm run prisma:studio
 ```
 
-- ไม่ควรแก้ไข migration files ที่ถูกสร้างแล้ว
-- ควร commit migration files เข้า git
+- อย่าแก้ migration files ที่ถูกสร้างแล้ว
+- ต้อง commit migration files เข้า git
 - ใช้ `prisma:migrate` สำหรับ prod
 - ใช้ `prisma:push` สำหรับ test
