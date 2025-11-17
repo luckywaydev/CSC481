@@ -47,3 +47,5 @@ Thumbs.db
 !backend/scripts/README.md
 !SETUP_Linux.md
 !backend/scripts/MANUAL_SETUP.md
+
+*.png

@@ -19,7 +19,9 @@ import {
   registerController,
   loginController,
   refreshTokenController,
+  getCurrentUserController,
 } from '../controllers/authController';
+import { authenticate } from '../middleware/auth';
 
 /**
  * สร้าง router instance
@@ -43,6 +45,12 @@ router.post('/login', loginController);
  * Refresh access token
  */
 router.post('/refresh', refreshTokenController);
+
+/**
+ * GET /api/v1/auth/me
+ * Get current user data (requires authentication)
+ */
+router.get('/me', authenticate, getCurrentUserController);
 
 /**
  * Export router

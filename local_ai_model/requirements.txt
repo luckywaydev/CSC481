@@ -1,0 +1,8 @@
+faster-whisper
+transformers[torch]>=4.23
+numpy
+av  # for audio processing
+torch>=2.0
+nvidia-cublas-cu12
+nvidia-cudnn-cu12==9.*
+tqdm

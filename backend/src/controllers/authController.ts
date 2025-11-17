@@ -284,3 +284,86 @@ export async function refreshTokenController(
     });
   }
 }
+
+/**
+ * GET /api/v1/auth/me
+ * Get current user data
+ *
+ * Headers:
+ * - Authorization: Bearer <token> (required)
+ *
+ * Response:
+ * - 200: Success
+ * - 401: Not authenticated
+ * - 500: Server error
+ */
+export async function getCurrentUserController(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    // Import AuthRequest type
+    const authReq = req as any; // Type assertion
+    
+    // ตรวจสอบว่ามี user ใน request หรือไม่ (จาก authenticate middleware)
+    if (!authReq.user) {
+      res.status(401).json({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Not authenticated',
+        },
+      });
+      return;
+    }
+
+    // ดึงข้อมูล user จาก database
+    const { prisma } = await import('../utils/prisma');
+    const user = await prisma.user.findUnique({
+      where: { id: authReq.user.userId },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        roleId: true,
+        isActive: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'User not found',
+        },
+      });
+      return;
+    }
+
+    // ส่ง response กลับ
+    res.status(200).json({
+      message: 'User data retrieved successfully',
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    // Server error
+    console.error('Get current user error:', error);
+    res.status(500).json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to get user data',
+      },
+    });
+  }
+}

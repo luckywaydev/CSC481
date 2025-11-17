@@ -106,11 +106,15 @@ app.get('/api/v1', (req, res) => {
  * Import routes
  */
 import authRoutes from './routes/authRoutes';
+import projectRoutes from './routes/projectRoutes';
+import audioRoutes from './routes/audioRoutes';
 
 /**
  * API Routes
  */
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1', audioRoutes);
 
 // === Error Handling ===
 
