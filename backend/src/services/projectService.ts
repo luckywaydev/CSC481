@@ -45,42 +45,29 @@ export async function createProject(userId: string, data: CreateProjectInput) {
     throw new Error('Project name is required');
   }
 
-  // Generate slug from name
-  const slug = name
+  // Generate slug from name (รองรับภาษาไทยและ Unicode)
+  let baseSlug = name
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
     .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/[^\p{L}\p{N}\s-]/gu, '') // Remove special characters but keep Unicode letters and numbers
     .replace(/-+/g, '-') // Replace multiple hyphens with single
     .trim();
 
-  // Check if slug already exists for this user
-  const existingProject = await prisma.project.findFirst({
-    where: {
-      userId,
-      slug,
-      deletedAt: null,
-    },
-  });
-
-  if (existingProject) {
-    // Add timestamp to make it unique
-    const uniqueSlug = `${slug}-${Date.now()}`;
-    return await prisma.project.create({
-      data: {
-        userId,
-        name,
-        slug: uniqueSlug,
-        description,
-      },
-    });
+  // ถ้า slug ว่างเปล่า (เช่น ชื่อเป็นตัวเลขหรือสัญลักษณ์อย่างเดียว) ให้ใช้ project เป็น default
+  if (!baseSlug) {
+    baseSlug = 'project';
   }
+
+  // เพิ่ม random string เพื่อให้ unique เสมอ (6 ตัวอักษร)
+  const randomString = Math.random().toString(36).substring(2, 8);
+  const finalSlug = `${baseSlug}-${randomString}`;
 
   // Create project
   return await prisma.project.create({
     data: {
       userId,
       name,
-      slug,
+      slug: finalSlug,
       description,
     },
   });
@@ -113,13 +100,28 @@ export async function getProjects(userId: string, options?: {
     };
   }
 
-  // Get projects with audio files count
+  // Get projects with audio files count and status
   const projects = await prisma.project.findMany({
     where,
     include: {
       _count: {
         select: {
           audioFiles: true,
+        },
+      },
+      audioFiles: {
+        where: {
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          status: true,
+          transcripts: {
+            select: {
+              id: true,
+            },
+            take: 1,
+          },
         },
       },
     },
@@ -150,13 +152,24 @@ export async function getProjectById(projectId: string, userId: string) {
         },
         include: {
           transcripts: {
-            select: {
-              id: true,
-              language: true,
-              wordCount: true,
-              createdAt: true,
+            include: {
+              segments: {
+                orderBy: {
+                  segmentIndex: 'asc',
+                },
+                include: {
+                  speaker: true,
+                },
+              },
+              speakers: {
+                orderBy: {
+                  displayOrder: 'asc',
+                },
+              },
             },
-            take: 1, // เอาแค่ตัวแรก
+            orderBy: {
+              createdAt: 'asc', // เรียงตาม createdAt เพื่อให้ transcript ต้นทางมาก่อน แล้วตามด้วยแปลภาษา
+            },
           },
         },
         orderBy: {
@@ -202,11 +215,11 @@ export async function updateProject(
     const name = sanitizeString(data.name);
     updateData.name = name;
 
-    // Generate new slug
+    // Generate new slug (รองรับภาษาไทยและ Unicode)
     const slug = name
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
+      .replace(/[^\p{L}\p{N}\s-]/gu, '')
       .replace(/-+/g, '-')
       .trim();
 

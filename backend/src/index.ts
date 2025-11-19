@@ -54,11 +54,27 @@ app.use(
         process.env.FRONTEND_URL,
       ].filter(Boolean);
 
-      if (!origin || allowedOrigins.includes(origin)) {
+      // อนุญาต origin ที่ไม่มี (เช่น mobile apps, Postman)
+      if (!origin) {
         callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+        return;
       }
+
+      // อนุญาต origin ที่อยู่ใน whitelist
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      // อนุญาต origin ที่เป็น luckyway.dev subdomain
+      if (origin.includes('luckyway.dev')) {
+        callback(null, true);
+        return;
+      }
+
+      // ปฏิเสธ origin อื่นๆ
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
   })
@@ -75,6 +91,15 @@ app.use(express.json());
  * แปลง form data ให้เป็น JavaScript object
  */
 app.use(express.urlencoded({ extended: true }));
+
+/**
+ * UTF-8 Charset Middleware
+ * บังคับให้ response เป็น UTF-8 เสมอ (รองรับภาษาไทย)
+ */
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 
 // === Routes ===
 
@@ -161,11 +186,20 @@ app.use(
  * 
  * สำหรับ VPS: ต้อง listen 0.0.0.0 เพื่อให้เข้าถึงได้จากภายนอก
  */
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`� Servter is running on http://0.0.0.0:${PORT}`);
+app.listen(PORT, '0.0.0.0', async () => {
+  console.log(`🚀 Server is running on http://0.0.0.0:${PORT}`);
   console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://0.0.0.0:${PORT}/health`);
   console.log(`🌐 External access: http://YOUR_VPS_IP:${PORT}`);
+  
+  // Auto-check stuck files on startup
+  try {
+    console.log('🔍 Checking for stuck PROCESSING files...');
+    const { resetStuckFiles } = await import('./scripts/resetStuckFiles');
+    await resetStuckFiles();
+  } catch (error) {
+    console.error('⚠️  Failed to check stuck files:', error);
+  }
 });
 
 // Export app สำหรับใช้ใน testing

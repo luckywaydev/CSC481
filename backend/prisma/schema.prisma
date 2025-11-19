@@ -144,19 +144,20 @@ model Project {
  * ไฟล์เสียงที่อัปโหลดเข้าระบบ
  */
 model AudioFile {
-  id               String    @id @default(uuid())
-  projectId        String    @map("project_id")
-  originalFilename String    @map("original_filename")
-  storedFilename   String    @map("stored_filename")
-  filePath         String    @map("file_path")
-  fileSizeBytes    BigInt    @map("file_size_bytes")
-  durationSeconds  Float?    @map("duration_seconds")
-  mimeType         String    @map("mime_type")
-  status           AudioFileStatus @default(UPLOADED)
-  uploadedAt       DateTime  @default(now()) @map("uploaded_at")
-  processedAt      DateTime? @map("processed_at")
-  expiresAt        DateTime? @map("expires_at")
-  deletedAt        DateTime? @map("deleted_at")
+  id                     String    @id @default(uuid())
+  projectId              String    @map("project_id")
+  originalFilename       String    @map("original_filename")
+  storedFilename         String    @map("stored_filename")
+  filePath               String    @map("file_path")
+  fileSizeBytes          BigInt    @map("file_size_bytes")
+  durationSeconds        Float?    @map("duration_seconds")
+  mimeType               String    @map("mime_type")
+  status                 AudioFileStatus @default(UPLOADED)
+  replicatePredictionId  String?   @map("replicate_prediction_id")
+  uploadedAt             DateTime  @default(now()) @map("uploaded_at")
+  processedAt            DateTime? @map("processed_at")
+  expiresAt              DateTime? @map("expires_at")
+  deletedAt              DateTime? @map("deleted_at")
 
   // Relations
   project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -165,6 +166,7 @@ model AudioFile {
   @@index([projectId])
   @@index([status])
   @@index([expiresAt])
+  @@index([replicatePredictionId])
   @@map("audio_files")
 }
 
@@ -217,7 +219,7 @@ model TranscriptSegment {
   transcriptId    String   @map("transcript_id")
   segmentIndex    Int      @map("segment_index")
   startTime       Float    @map("start_time")
-  endTime         Float    @map("end_time")
+  endTime         Float?   @map("end_time")
   text            String   @db.Text
   speakerId       String?  @map("speaker_id")
   confidenceScore Float?   @map("confidence_score")

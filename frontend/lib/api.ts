@@ -100,6 +100,7 @@ export interface AudioFile {
   uploadedAt: string;
   processedAt: string | null;
   expiresAt: string | null;
+  transcripts?: Transcript[];
 }
 
 /**
@@ -130,7 +131,7 @@ export interface TranscriptSegment {
   transcriptId: string;
   segmentIndex: number;
   startTime: number;
-  endTime: number;
+  endTime: number | null;
   text: string;
   speakerId: string | null;
   confidenceScore: number | null;
@@ -583,3 +584,58 @@ export const tokenManager = {
     return null;
   },
 };
+
+/**
+ * Transcribe audio file
+ */
+export async function transcribeAudio(
+  token: string,
+  audioId: string,
+  options?: {
+    task?: 'transcribe' | 'translate';
+    language?: string;
+    targetLanguage?: string;
+    numSpeakers?: number;
+    minSpeakers?: number;
+    maxSpeakers?: number;
+  }
+): Promise<ApiResponse<{ audioFile: AudioFile }>> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/audio/${audioId}/transcribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(options || {}),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        error: {
+          code: data.error?.code || 'TRANSCRIBE_FAILED',
+          message: data.error?.message || 'Failed to start transcription',
+        },
+      };
+    }
+
+    return { data: data.data };
+  } catch (error) {
+    console.error('Transcribe audio error:', error);
+    return {
+      error: {
+        code: 'NETWORK_ERROR',
+        message: 'Network error occurred',
+      },
+    };
+  }
+}
+
+/**
+ * Get audio stream URL (public - no token needed)
+ */
+export function getAudioStreamUrl(token: string, audioId: string): string {
+  return `${API_BASE_URL}/audio/${audioId}/stream`;
+}

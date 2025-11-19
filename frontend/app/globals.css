@@ -78,3 +78,50 @@ body {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+/* S
+elect dropdown styles - แก้ปัญหาตัวหนังสือสีขาวบนพื้นขาว */
+select {
+  background-color: var(--background-secondary);
+  color: var(--foreground);
+  border: 1px solid var(--background-tertiary);
+}
+
+select option {
+  background-color: var(--background);
+  color: var(--purple-primary);
+  padding: 8px;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: var(--purple-primary);
+  color: white;
+}
+
+/* Toast animation */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+}
+
+.animate-progress {
+  animation: progress 2s ease-out;
+}

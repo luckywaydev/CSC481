@@ -49,3 +49,5 @@ Thumbs.db
 !backend/scripts/MANUAL_SETUP.md
 
 *.png
+
+local_ai_model

@@ -1,0 +1,14 @@
+
+> backend@1.0.0 start
+> node dist/index.js
+
+[dotenv@17.2.3] injecting env (19) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+🚀 Server is running on http://0.0.0.0:4000
+📝 Environment: development
+🔗 Health check: http://0.0.0.0:4000/health
+🌐 External access: http://YOUR_VPS_IP:4000
+🔍 Checking for stuck PROCESSING files...
+🔍 Checking for stuck PROCESSING files...
+prisma:info Starting a postgresql pool with 13 connections.
+prisma:query SELECT "public"."audio_files"."id", "public"."audio_files"."project_id", "public"."audio_files"."original_filename", "public"."audio_files"."stored_filename", "public"."audio_files"."file_path", "public"."audio_files"."file_size_bytes", "public"."audio_files"."duration_seconds", "public"."audio_files"."mime_type", "public"."audio_files"."status"::text, "public"."audio_files"."replicate_prediction_id", "public"."audio_files"."uploaded_at", "public"."audio_files"."processed_at", "public"."audio_files"."expires_at", "public"."audio_files"."deleted_at" FROM "public"."audio_files" WHERE "public"."audio_files"."status" = CAST($1::text AS "public"."AudioFileStatus") OFFSET $2
+✅ No stuck files found

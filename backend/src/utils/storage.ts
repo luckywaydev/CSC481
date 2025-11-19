@@ -18,7 +18,7 @@ import fs from 'fs';
 /**
  * Upload directory
  */
-const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads/audio';
+const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 
 /**
  * สร้าง upload directory ถ้ายังไม่มี

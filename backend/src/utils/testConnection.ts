@@ -61,7 +61,7 @@ async function testDatabaseConnection() {
       console.log('   Command: npm run prisma:migrate');
     } else {
       console.log(`✅ Found ${tables.length} table(s):`);
-      tables.forEach((table) => {
+      tables.forEach((table: any) => {
         console.log(`   - ${table.tablename}`);
       });
     }

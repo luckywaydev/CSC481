@@ -9,11 +9,111 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api, tokenManager, type Project } from "@/lib/api";
-import { Button } from "@/components/ui";
+import { Button, showToast, showConfirm } from "@/components/ui";
+
+/**
+ * Project Card Component (Memoized)
+ */
+const ProjectCard = memo(({ 
+  project, 
+  onDelete 
+}: { 
+  project: Project; 
+  onDelete: (id: string, name: string) => void;
+}) => {
+  // คำนวณ status จากไฟล์
+  const audioFiles = project.audioFiles || [];
+  const totalFiles = project._count?.audioFiles || 0;
+  const completedFiles = audioFiles.filter(f => 
+    f.status === 'COMPLETED' && f.transcripts && f.transcripts.length > 0
+  ).length;
+  const processingFiles = audioFiles.filter(f => f.status === 'PROCESSING').length;
+  const failedFiles = audioFiles.filter(f => f.status === 'FAILED').length;
+  
+  // กำหนด status
+  let statusText = '';
+  let statusClass = '';
+  
+  if (totalFiles === 0) {
+    statusText = '';
+    statusClass = '';
+  } else if (processingFiles > 0) {
+    statusText = 'กำลังประมวลผล...';
+    statusClass = 'bg-yellow-500/20 text-yellow-400 animate-pulse';
+  } else if (completedFiles === totalFiles) {
+    statusText = 'ประมวลผลเสร็จสิ้น';
+    statusClass = 'bg-green-500/20 text-green-400';
+  } else if (failedFiles === totalFiles) {
+    statusText = 'ประมวลผลล้มเหลว';
+    statusClass = 'bg-red-500/20 text-red-400';
+  } else if (completedFiles > 0) {
+    statusText = 'กำลังดำเนินการ';
+    statusClass = 'bg-purple-500/20 text-purple-400';
+  } else {
+    statusText = 'รอดำเนินการ';
+    statusClass = 'bg-gray-500/20 text-gray-400';
+  }
+
+  return (
+    <div className="group relative bg-background-secondary rounded-xl p-6 border border-background-tertiary hover:border-purple-500/50 transition-all">
+      {/* Delete Button */}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          onDelete(project.id, project.name);
+        }}
+        className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all sm:opacity-0 sm:group-hover:opacity-100 z-10"
+        title="ลบโปรเจกต์"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+          />
+        </svg>
+      </button>
+
+      {/* Project Link */}
+      <Link href={`/dashboard/projects/${project.id}`} className="block pr-10">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-lg font-semibold text-text-primary group-hover:text-purple-400 transition-colors flex-1">
+            {project.name}
+          </h3>
+          {/* Status Badge */}
+          {statusText && (
+            <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusClass}`}>
+              {statusText}
+            </span>
+          )}
+        </div>
+        
+        {project.description && (
+          <p className="text-sm text-text-secondary mb-4 line-clamp-2">
+            {project.description}
+          </p>
+        )}
+
+        <div className="text-xs text-text-tertiary">
+          สร้างเมื่อ {new Date(project.createdAt).toLocaleDateString('th-TH')}
+        </div>
+      </Link>
+    </div>
+  );
+});
+
+ProjectCard.displayName = 'ProjectCard';
 
 /**
  * Projects Section Component
@@ -26,26 +126,61 @@ function ProjectsSection() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [creating, setCreating] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchProjects();
   }, []);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async (silent = false) => {
     const token = tokenManager.getAccessToken();
     if (!token) return;
 
     try {
-      const response = await api.getProjects(token, { limit: 5 });
+      const response = await api.getProjects(token, { limit: 10 });
       if (response.data?.projects) {
         setProjects(response.data.projects);
       }
     } catch (error) {
       console.error("Failed to fetch projects:", error);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
+
+  // Check if has processing files (memoized) - เช็คทั้ง PROCESSING และ COMPLETED ที่ไม่มี transcript
+  const hasProcessing = useMemo(() => {
+    return projects.some(project => 
+      project.audioFiles?.some(file => 
+        file.status === 'PROCESSING' || 
+        (file.status === 'COMPLETED' && (!file.transcripts || file.transcripts.length === 0))
+      )
+    );
+  }, [projects]);
+
+  // Auto-refresh ถ้ามีไฟล์กำลัง processing (silent mode) - ทุก 10 วินาที
+  useEffect(() => {
+    // Clear existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (hasProcessing) {
+      intervalRef.current = setInterval(() => {
+        fetchProjects(true); // silent refresh
+      }, 10000); // เปลี่ยนเป็น 10 วินาที
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [hasProcessing, fetchProjects]);
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim()) return;
@@ -65,16 +200,27 @@ function ProjectsSection() {
         setShowCreateModal(false);
         setNewProjectName("");
         setNewProjectDescription("");
+        showToast("สร้างโปรเจกต์สำเร็จ", "success");
+      } else if (response.error) {
+        showToast(`สร้างโปรเจกต์ล้มเหลว: ${response.error.message}`, "error");
       }
     } catch (error) {
       console.error("Failed to create project:", error);
+      showToast("สร้างโปรเจกต์ล้มเหลว", "error");
     } finally {
       setCreating(false);
     }
   };
 
   const handleDeleteProject = async (projectId: string, projectName: string) => {
-    const confirmed = confirm(`คุณต้องการลบโปรเจกต์ "${projectName}" หรือไม่?\n\nการลบจะไม่สามารถกู้คืนได้`);
+    const confirmed = await showConfirm({
+      title: `ลบโปรเจกต์ "${projectName}" หรือไม่?`,
+      message: "การลบจะไม่สามารถกู้คืนได้",
+      confirmText: "OK",
+      cancelText: "Cancel",
+      type: "danger",
+    });
+    
     if (!confirmed) return;
 
     const token = tokenManager.getAccessToken();
@@ -86,13 +232,13 @@ function ProjectsSection() {
       if (response.data?.success) {
         // Remove from list
         setProjects(projects.filter(p => p.id !== projectId));
-        alert("ลบโปรเจกต์สำเร็จ");
+        showToast("ลบโปรเจกต์สำเร็จ", "success");
       } else if (response.error) {
-        alert(`ลบโปรเจกต์ล้มเหลว: ${response.error.message}`);
+        showToast(`ลบโปรเจกต์ล้มเหลว: ${response.error.message}`, "error");
       }
     } catch (error) {
       console.error("Failed to delete project:", error);
-      alert("ลบโปรเจกต์ล้มเหลว");
+      showToast("ลบโปรเจกต์ล้มเหลว", "error");
     }
   };
 
@@ -139,55 +285,11 @@ function ProjectsSection() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <div
+            <ProjectCard
               key={project.id}
-              className="group relative bg-background-secondary rounded-xl p-6 border border-background-tertiary hover:border-purple-500/50 transition-all"
-            >
-              {/* Delete Button */}
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDeleteProject(project.id, project.name);
-                }}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all opacity-0 group-hover:opacity-100"
-                title="ลบโปรเจกต์"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              </button>
-
-              {/* Project Link */}
-              <Link href={`/dashboard/projects/${project.id}`} className="block">
-                <div className="flex items-start justify-between mb-3 pr-8">
-                  <h3 className="text-lg font-semibold text-text-primary group-hover:text-purple-400 transition-colors">
-                    {project.name}
-                  </h3>
-                  <span className="text-xs text-text-tertiary">
-                    {project._count?.audioFiles || 0} ไฟล์
-                  </span>
-                </div>
-                {project.description && (
-                  <p className="text-sm text-text-secondary mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                )}
-                <div className="text-xs text-text-tertiary">
-                  สร้างเมื่อ {new Date(project.createdAt).toLocaleDateString('th-TH')}
-                </div>
-              </Link>
-            </div>
+              project={project}
+              onDelete={handleDeleteProject}
+            />
           ))}
         </div>
       )}
@@ -367,7 +469,7 @@ export default function DashboardPage() {
             )}
             {user.role && (
               <div className="flex items-center space-x-2">
-                <span className="text-text-tertiary">บทบาท:</span>
+                <span className="text-text-tertiary">ระดับ:</span>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   {user.role.name === 'admin' && '👑 '}
                   {user.role.name === 'pro' && '⭐ '}

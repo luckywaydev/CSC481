@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { api, tokenManager, type Transcript, type TranscriptSegment } from "@/lib/api";
-import { Button } from "@/components/ui";
+import { Button, showToast } from "@/components/ui";
 
 /**
  * Transcript Viewer Page
@@ -54,7 +54,10 @@ export default function TranscriptViewerPage() {
     }
   };
 
-  const formatTime = (seconds: number): string => {
+  const formatTime = (seconds: number | null | undefined): string => {
+    if (seconds === null || seconds === undefined) {
+      return "--:--:---";
+    }
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     const ms = Math.floor((seconds % 1) * 1000);
@@ -73,7 +76,7 @@ export default function TranscriptViewerPage() {
     try {
       const response = await api.updateSegment(token, segmentId, editingText);
       if (response.error) {
-        alert(`Failed to update: ${response.error.message}`);
+        showToast(`แก้ไขล้มเหลว: ${response.error.message}`, "error");
         return;
       }
 
@@ -87,9 +90,10 @@ export default function TranscriptViewerPage() {
 
       setEditingSegmentId(null);
       setEditingText("");
+      showToast("แก้ไขสำเร็จ", "success");
     } catch (error) {
       console.error("Failed to update segment:", error);
-      alert("Failed to update segment");
+      showToast("แก้ไขล้มเหลว", "error");
     }
   };
 
@@ -105,7 +109,7 @@ export default function TranscriptViewerPage() {
     try {
       const response = await api.updateSpeaker(token, speakerId, editingSpeakerName);
       if (response.error) {
-        alert(`Failed to update: ${response.error.message}`);
+        showToast(`แก้ไขชื่อผู้พูดล้มเหลว: ${response.error.message}`, "error");
         return;
       }
 
@@ -124,9 +128,10 @@ export default function TranscriptViewerPage() {
 
       setEditingSpeakerId(null);
       setEditingSpeakerName("");
+      showToast("แก้ไขชื่อผู้พูดสำเร็จ", "success");
     } catch (error) {
       console.error("Failed to update speaker:", error);
-      alert("Failed to update speaker");
+      showToast("แก้ไขชื่อผู้พูดล้มเหลว", "error");
     }
   };
 
@@ -191,30 +196,30 @@ export default function TranscriptViewerPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-background-secondary border-b border-background-tertiary sticky top-0 z-10">
+      <header className="bg-background-secondary/95 backdrop-blur-xl border-b border-background-tertiary sticky top-0 z-10 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4 min-w-0 flex-1">
               <Link href={`/dashboard/projects/${transcript.audioFile?.projectId}`}>
                 <Button variant="ghost" size="sm">
                   ← กลับ
                 </Button>
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold text-text-primary">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-text-primary truncate">
                   {transcript.audioFile?.originalFilename || "Transcript"}
                 </h1>
-                <p className="text-sm text-text-secondary mt-1">
+                <p className="text-xs sm:text-sm text-text-secondary mt-1">
                   {transcript.language} • {transcript.wordCount} คำ • {transcript.segments.length} segments
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="md" onClick={exportTXT}>
-                📄 Export TXT
+            <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+              <Button variant="outline" size="sm" onClick={exportTXT} className="flex-1 sm:flex-none">
+                📄 TXT
               </Button>
-              <Button variant="primary" size="md" onClick={exportSRT}>
-                🎬 Export SRT
+              <Button variant="primary" size="sm" onClick={exportSRT} className="flex-1 sm:flex-none">
+                🎬 SRT
               </Button>
             </div>
           </div>
@@ -276,9 +281,10 @@ export default function TranscriptViewerPage() {
           </div>
         )}
 
-        {/* Transcript Segments */}
+        {/* Transcript Segments - Mobile Optimized */}
         <div className="bg-background-secondary rounded-xl border border-background-tertiary overflow-hidden">
-          <div className="overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-background border-b border-background-tertiary">
                 <tr>
@@ -332,18 +338,18 @@ export default function TranscriptViewerPage() {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleSaveSegment(segment.id)}
-                            className="text-green-400 hover:text-green-300 transition-colors"
+                            className="text-green-400 hover:text-green-300 transition-colors text-sm"
                           >
-                            ✓ บันทึก
+                            ✓
                           </button>
                           <button
                             onClick={() => {
                               setEditingSegmentId(null);
                               setEditingText("");
                             }}
-                            className="text-red-400 hover:text-red-300 transition-colors"
+                            className="text-red-400 hover:text-red-300 transition-colors text-sm"
                           >
-                            ✕ ยกเลิก
+                            ✕
                           </button>
                         </div>
                       ) : (
@@ -351,7 +357,7 @@ export default function TranscriptViewerPage() {
                           onClick={() => handleEditSegment(segment)}
                           className="text-purple-400 hover:text-purple-300 transition-colors"
                         >
-                          ✏️ แก้ไข
+                          ✏️
                         </button>
                       )}
                     </td>
@@ -359,6 +365,48 @@ export default function TranscriptViewerPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-background-tertiary">
+            {transcript.segments.map((segment) => (
+              <div key={segment.id} className="p-4 hover:bg-background/50 transition-colors">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-text-tertiary whitespace-nowrap">
+                      {formatTime(segment.startTime)}
+                    </span>
+                    {segment.speaker && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300">
+                        {segment.speaker.name}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => editingSegmentId === segment.id ? handleSaveSegment(segment.id) : handleEditSegment(segment)}
+                    className="text-purple-400 hover:text-purple-300 transition-colors flex-shrink-0"
+                  >
+                    {editingSegmentId === segment.id ? "✓" : "✏️"}
+                  </button>
+                </div>
+                {editingSegmentId === segment.id ? (
+                  <textarea
+                    value={editingText}
+                    onChange={(e) => setEditingText(e.target.value)}
+                    className="w-full bg-background border border-purple-500 rounded-lg px-3 py-2 text-text-primary focus:outline-none resize-none text-sm"
+                    rows={3}
+                    autoFocus
+                  />
+                ) : (
+                  <p className="text-text-primary leading-relaxed text-sm">
+                    {segment.text}
+                    {segment.isEdited && (
+                      <span className="ml-2 text-xs text-purple-400">(แก้ไขแล้ว)</span>
+                    )}
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
