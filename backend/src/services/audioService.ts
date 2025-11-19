@@ -39,11 +39,21 @@ export async function createAudioFile(
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 1);
 
+  // แปลง filename encoding จาก Latin1 เป็น UTF-8 (แก้ปัญหาภาษาไทย)
+  let originalFilename = file.originalname;
+  try {
+    // Multer ส่ง filename มาเป็น Latin1 ต้องแปลงเป็น UTF-8
+    const buffer = Buffer.from(file.originalname, 'latin1');
+    originalFilename = buffer.toString('utf8');
+  } catch (error) {
+    console.warn('⚠️  Could not convert filename encoding, using original:', error);
+  }
+
   // สร้าง audio file record
   const audioFile = await prisma.audioFile.create({
     data: {
       projectId,
-      originalFilename: file.originalname,
+      originalFilename,
       storedFilename: file.filename,
       filePath: file.path,
       fileSizeBytes: file.size,
