@@ -63,20 +63,20 @@ export default function ProjectDetailPage() {
 
     const hasProcessing = project?.audioFiles?.some((file) => file.status === "PROCESSING");
     
-    // Check if there's a recently completed file (within last 30 seconds) that might be translating
-    const hasRecentCompletion = project?.audioFiles?.some((file) => {
-      if (file.status === "COMPLETED" && file.processedAt) {
+    // Check if there's a file that might be translating (completed with only 1 transcript)
+    const hasPotentialTranslation = project?.audioFiles?.some((file) => {
+      if (file.status === "COMPLETED" && file.processedAt && file.transcripts) {
         const processedTime = new Date(file.processedAt).getTime();
         const now = Date.now();
         const timeDiff = now - processedTime;
-        // If completed within last 30 seconds, keep polling (might be translating)
-        return timeDiff < 30000;
+        // If completed within last 2 minutes AND has only 1 transcript, might be translating
+        return timeDiff < 120000 && file.transcripts.length === 1;
       }
       return false;
     });
 
-    // Only auto-refresh if there are processing files OR recent completions AND modal is not open
-    if ((hasProcessing || hasRecentCompletion) && !showUploadModal) {
+    // Only auto-refresh if there are processing files OR potential translations AND modal is not open
+    if ((hasProcessing || hasPotentialTranslation) && !showUploadModal) {
       intervalRef.current = setInterval(() => {
         fetchProject(true); // silent refresh
       }, 3000);
@@ -511,15 +511,34 @@ export default function ProjectDetailPage() {
                         </Link>
                       </div>
 
-                      {/* Translation Status (if translating) */}
-                      {audioFile.transcripts && audioFile.transcripts.length === 1 && audioFile.processedAt && (
-                        (() => {
-                          const processedTime = new Date(audioFile.processedAt).getTime();
-                          const now = Date.now();
-                          const timeDiff = now - processedTime;
-                          // Show "translating" status if completed within last 30 seconds
-                          if (timeDiff < 30000) {
-                            return (
+
+
+                      {/* Translation Section */}
+                      {(() => {
+                        const hasOriginalTranscript = audioFile.transcripts && audioFile.transcripts.length >= 1;
+                        const hasTranslatedTranscript = audioFile.transcripts && audioFile.transcripts.length > 1;
+                        const isRecentlyCompleted = audioFile.processedAt && 
+                          (Date.now() - new Date(audioFile.processedAt).getTime()) < 120000; // 2 minutes
+                        
+                        // Debug log
+                        if (audioFile.transcripts && audioFile.transcripts.length > 0) {
+                          console.log('Translation check:', {
+                            filename: audioFile.originalFilename,
+                            transcriptCount: audioFile.transcripts.length,
+                            hasOriginal: hasOriginalTranscript,
+                            hasTranslated: hasTranslatedTranscript,
+                            isRecent: isRecentlyCompleted,
+                            processedAt: audioFile.processedAt,
+                          });
+                        }
+                        
+                        // Show translation status if recently completed AND has only 1 transcript (might be translating)
+                        const showTranslatingStatus = hasOriginalTranscript && !hasTranslatedTranscript && isRecentlyCompleted;
+                        
+                        return (
+                          <>
+                            {/* Translation Status (if translating) */}
+                            {showTranslatingStatus && (
                               <div className="mt-6 pt-6 border-t border-background-tertiary">
                                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6 text-center">
                                   <div className="inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
@@ -527,61 +546,69 @@ export default function ProjectDetailPage() {
                                   <p className="text-text-tertiary text-sm mt-2">กรุณารอสักครู่</p>
                                 </div>
                               </div>
-                            );
-                          }
-                          return null;
-                        })()
-                      )}
+                            )}
 
-                      {/* Translated Transcript (if exists) */}
-                      {audioFile.transcripts && audioFile.transcripts.length > 1 && (
-                        <div className="mt-6 pt-6 border-t border-background-tertiary">
-                          <h4 className="text-lg font-semibold text-text-primary mb-4">
-                            🌐 ผลลัพธ์การแปลภาษา
-                          </h4>
-                          {audioFile.transcripts.slice(1).map((translatedTranscript) => {
-                            const translatedSegments = translatedTranscript.segments || [];
-                            const translatedSpeakers = translatedTranscript.speakers || [];
-                            
-                            return (
-                              <div key={translatedTranscript.id} className="mb-4">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
-                                    {translatedTranscript.language?.toUpperCase()}
-                                  </span>
-                                </div>
-                                <TranscriptViewer
-                                  segments={translatedSegments}
-                                  speakers={translatedSpeakers}
-                                  currentTime={currentTime}
-                                  onSegmentClick={(time) => handleSegmentClick(audioFile.id, time)}
-                                  onEditSegment={handleEditSegment}
-                                  onEditSpeaker={handleEditSpeaker}
-                                  className="w-full"
-                                />
-                                <div className="flex gap-3 mt-4">
-                                  <Link
-                                    href={`${process.env.NEXT_PUBLIC_API_URL}/transcripts/${translatedTranscript.id}/download/txt?token=${tokenManager.getAccessToken()}`}
-                                    target="_blank"
-                                  >
-                                    <Button variant="outline" size="sm">
-                                      📄 ดาวน์โหลด TXT (แปลแล้ว)
-                                    </Button>
-                                  </Link>
-                                  <Link
-                                    href={`${process.env.NEXT_PUBLIC_API_URL}/transcripts/${translatedTranscript.id}/download/srt?token=${tokenManager.getAccessToken()}`}
-                                    target="_blank"
-                                  >
-                                    <Button variant="outline" size="sm">
-                                      🎬 ดาวน์โหลด SRT (แปลแล้ว)
-                                    </Button>
-                                  </Link>
-                                </div>
+                            {/* Translated Transcript (if exists) */}
+                            {hasTranslatedTranscript && (
+                              <div className="mt-6 pt-6 border-t border-background-tertiary">
+                                <h4 className="text-lg font-semibold text-text-primary mb-4">
+                                  🌐 ผลลัพธ์การแปลภาษา
+                                </h4>
+                                {audioFile.transcripts!.slice(1).map((translatedTranscript) => {
+                                  const translatedSegments = translatedTranscript.segments || [];
+                                  const translatedSpeakers = translatedTranscript.speakers || [];
+                                  
+                                  return (
+                                    <div key={translatedTranscript.id} className="mb-4">
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                                          {translatedTranscript.language?.toUpperCase()}
+                                        </span>
+                                      </div>
+                                      
+                                      {translatedSegments.length > 0 ? (
+                                        <>
+                                          <TranscriptViewer
+                                            segments={translatedSegments}
+                                            speakers={translatedSpeakers}
+                                            currentTime={currentTime}
+                                            onSegmentClick={(time) => handleSegmentClick(audioFile.id, time)}
+                                            onEditSegment={handleEditSegment}
+                                            onEditSpeaker={handleEditSpeaker}
+                                            className="w-full"
+                                          />
+                                          <div className="flex gap-3 mt-4">
+                                            <Link
+                                              href={`${process.env.NEXT_PUBLIC_API_URL}/transcripts/${translatedTranscript.id}/download/txt?token=${tokenManager.getAccessToken()}`}
+                                              target="_blank"
+                                            >
+                                              <Button variant="outline" size="sm">
+                                                📄 ดาวน์โหลด TXT (แปลแล้ว)
+                                              </Button>
+                                            </Link>
+                                            <Link
+                                              href={`${process.env.NEXT_PUBLIC_API_URL}/transcripts/${translatedTranscript.id}/download/srt?token=${tokenManager.getAccessToken()}`}
+                                              target="_blank"
+                                            >
+                                              <Button variant="outline" size="sm">
+                                                🎬 ดาวน์โหลด SRT (แปลแล้ว)
+                                              </Button>
+                                            </Link>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <div className="text-center py-8">
+                                          <p className="text-text-tertiary">ไม่มีข้อมูลการแปล</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                            )}
+                          </>
+                        );
+                      })()}
                     </>
                   ) : audioFile.status === "PROCESSING" ? (
                     <div className="text-center py-8">

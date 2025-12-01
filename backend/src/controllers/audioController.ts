@@ -416,6 +416,8 @@ export async function transcribeAudioController(
     const { audioId } = req.params;
     const { language, task, targetLanguage, numSpeakers, minSpeakers, maxSpeakers } = req.body;
 
+    console.log('🎯 Transcribe request received:', { audioId, task, language, targetLanguage });
+
     // ดึงข้อมูล audio file
     const audioFile = await getAudioFile(audioId, req.user.userId);
 
@@ -493,6 +495,7 @@ export async function transcribeAudioController(
         console.log('✅ Transcription completed for:', audioFile.originalFilename);
 
         // ถ้าผู้ใช้เลือก task แปลภาษา ให้ทำการแปลต่อ (หลังจากถอดเสียงเสร็จแล้ว)
+        console.log('🔍 Checking translation:', { task, targetLanguage, hasTranscript: !!transcript });
         if (task === 'translate' && targetLanguage && transcript) {
           console.log('🌐 Starting translation to:', targetLanguage);
           
